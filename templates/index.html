@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotManager V2.5 - Enhanced AI Project Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #17a2b8;
+            --dark-color: #343a40;
+            --light-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .version-badge {
+            font-size: 0.7rem;
+            vertical-align: super;
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 80px 0;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .bot-card {
+            border-left: 5px solid var(--accent-color);
+            transition: all 0.3s;
+        }
+        
+        .bot-card:hover {
+            border-left-color: var(--secondary-color);
+            background-color: rgba(23, 162, 184, 0.05);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-active {
+            background-color: var(--success-color);
+        }
+        
+        .status-inactive {
+            background-color: var(--danger-color);
+        }
+        
+        .status-pending {
+            background-color: var(--warning-color);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-accent {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-accent:hover {
+            background-color: #138496;
+            border-color: #138496;
+            color: white;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.25rem rgba(23, 162, 184, 0.25);
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: var(--dark-color);
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+        }
+        
+        .log-entry {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            background-color: #f8f9fa;
+        }
+        
+        .log-info {
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .log-success {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .log-warning {
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .log-error {
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .api-key-display {
+            font-family: 'Courier New', monospace;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            word-break: break-all;
+        }
+        
+        .bot-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-color);
+        }
+        
+        .progress-bar-custom {
+            background-color: var(--accent-color);
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 50px 0;
+            }
+            
+            .display-4 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-robot me-2"></i>BotManager <span class="version-badge">V2.5</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dashboard"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#bots"><i class="fas fa-robot me-1"></i> My Bots</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#create"><i class="fas fa-plus-circle me-1"></i> Create Bot</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#config"><i class="fas fa-cog me-1"></i> Configuration</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#logs"><i class="fas fa-clipboard-list me-1"></i> Logs</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">BotManager V2.5</h1>
+            <p class="lead mb-4">Enhanced AI Project Generator with Multi-Bot Support</p>
+            <p class="mb-4">Create, manage, and deploy multiple AI bots with a single interface. Powered by advanced AI models and seamless integration.</p>
+            <a href="#create" class="btn btn-accent btn-lg"><i class="fas fa-plus-circle me-2"></i> Create Your First Bot</a>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="mb-5">
+            <h2 class="mb-4"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</h2>
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="card feature-card text-center">
+                        <div class="card-body">
+                            <div class="feature-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h5 class="card-title">Active Bots</h5>
+                            <h2 class="display-6" id="active-bots-count">0</h2>
+                            <p class="card-text">Currently running</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card feature-card text-center">
+                        <div class="card-body">
+                            <div class="feature-icon">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <h5 class="card-title">Total Projects</h5>
+                            <h2 class="display-6" id="total-projects-count">0</h2>
+                            <p class="card-text">Generated</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card feature-card text-center">
+                        <div class="card-body">
+                            <div class="feature-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h5 class="card-title">API Usage</h5>
+                            <h2 class="display-6" id="api-usage-count">0</h2>
+                            <p class="card-text">Requests today</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card feature-card text-center">
+                        <div class="card-body">
+                            <div class="feature-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h5 class="card-title">Success Rate</h5>
+                            <h2 class="display-6" id="success-rate">0%</h2>
+                            <p class="card-text">Bot deployments</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i> System Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>API Services Status</h6>
+                            <div class="mb-3">
+                                <span>OpenAI API:</span>
+                                <span class="badge bg-success ms-2" id="openai-status">Connected</span>
+                            </div>
+                            <div class="mb-3">
+                                <span>Anthropic API:</span>
+                                <span class="badge bg-success ms-2" id="anthropic-status">Connected</span>
+                            </div>
+                            <div class="mb-3">
+                                <span>Google AI API:</span>
+                                <span class="badge bg-success ms-2" id="googleai-status">Connected</span>
+                            </div>
+                            <div class="mb-3">
+                                <span>Replicate API:</span>
+                                <span class="badge bg-success ms-2" id="replicate-status">Connected</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>System Resources</h6>
+                            <div class="mb-3">
+                                <span>Memory Usage:</span>
+                                <div class="progress mt-1">
+                                    <div class="progress-bar progress-bar-custom" role="progressbar" style="width: 65%" id="memory-usage">65%</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <span>Storage:</span>
+                                <div class="progress mt-1">
+                                    <div class="progress-bar progress-bar-custom" role="progressbar" style="width: 42%" id="storage-usage">42%</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <span>CPU Load:</span>
+                                <div class="progress mt-1">
+                                    <div class="progress-bar progress-bar-custom" role="progressbar" style="width: 30%" id="cpu-usage">30%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- My Bots Section -->
+        <section id="bots" class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-robot me-2"></i> My Bots</h2>
+                <button class="btn btn-accent" data-bs-toggle="modal" data-bs-target="#createBotModal">
+                    <i class="fas fa-plus-circle me-2"></i> New Bot
+                </button>
+            </div>
+            
+            <div class="row" id="bots-container">
+                <!-- Bot cards will be dynamically inserted here -->
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle me-2"></i> No bots created yet. Click "New Bot" to create your first AI bot.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Create Bot Section -->
+        <section id="create" class="mb-5">
+            <h2 class="mb-4"><i class="fas fa-plus-circle me-2"></i> Create New Bot</h2>
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Bot Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <form id="create-bot-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="bot-name" class="form-label">Bot Name *</label>
+                                <input type="text" class="form-control" id="bot-name" placeholder="e.g., Customer Support Assistant" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="bot-type" class="form-label">Bot Type *</label>
+                                <select class="form-select" id="bot-type" required>
+                                    <option value="">Select bot type</option>
+                                    <option value="chatbot">Chatbot</option>
+                                    <option value="assistant">AI Assistant</option>
+                                    <option value="automation">Automation Bot</option>
+                                    <option value="analysis">Data Analysis Bot</option>
+                                    <option value="content">Content Generator</option>
+                                    <option value="custom">Custom Bot</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="bot-description" class="form-label">Description</label>
+                            <textarea class="form-control" id="bot-description" rows="3" placeholder="Describe what this bot will do..."></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ai-model" class="form-label">AI Model *</label>
+                                <select class="form-select" id="ai-model" required>
+                                    <option value="">Select AI model</option>
+                                    <option value="gpt-4">GPT-4 (OpenAI)</option>
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo (OpenAI)</option>
+                                    <option value="claude-3">Claude 3 (Anthropic)</option>
+                                    <option value="gemini-pro">Gemini Pro (Google)</option>
+                                    <option value="llama-2">Llama 2 (Replicate)</option>
+                                    <option value="custom">Custom Model</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="bot-platform" class="form-label">Deployment Platform</label>
+                                <select class="form-select" id="bot-platform">
+                                    <option value="web">Web Application</option>
+                                    <option value="discord">Discord Bot</option>
+                                    <option value="slack">Slack Bot</option>
+                                    <option value="telegram">Telegram Bot</option>
+                                    <option value="api">API Only</option>
+                                    <option value="custom">Custom Platform</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Capabilities</label>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="capability-chat" checked>
+                                        <label class="form-check-label" for="capability-chat">Chat</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="capability-file">
+                                        <label class="form-check-label" for="capability-file">File Processing</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="capability-web">
+                                        <label class="form-check-label" for="capability-web">Web Search</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="capability-db">
+                                        <label class="form-check-label" for="capability-db">Database Access</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="reset" class="btn btn-secondary me-md-2">Reset</button>
+                            <button type="submit" class="btn btn-accent">
+                                <i class="fas fa-magic me-2"></i> Generate Bot
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuration Section -->
+        <section id="config" class="mb-5">
+            <h2 class="mb-4"><i class="fas fa-cog me-2"></i> Configuration</h2>
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">API Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> API keys are securely stored in Replit Secrets. The system automatically detects available keys.
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h5>Available API Keys</h5>
+                            <div class="mb-3">
+                                <label class="form-label">OpenAI API Key</label>
+                                <div class="api-key-display" id="openai-key-display">
+                                    <i class="fas fa-check-circle text-success me-2"></i> Configured (from secrets)
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Anthropic API Key</label>
+                                <div class="api-key-display" id="anthropic-key-display">
+                                    <i class="fas fa-check-circle text-success me-2"></i> Configured (from secrets)
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Google AI API Key</label>
+                                <div class="api-key-display" id="googleai-key-display">
+                                    <i class="fas fa-check-circle text-success me-2"></i> Configured (from secrets)
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Replicate API Key</label>
+                                <div class="api-key-display" id="replicate-key-display">
+                                    <i class="fas fa-check-circle text-success me-2"></i> Configured (from secrets)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <h5>System Settings</h5>
+                            <form id="system-settings-form">
+                                <div class="mb-3">
+                                    <label for="max-bots" class="form-label">Maximum Concurrent Bots</label>
+                                    <input type="number" class="form-control" id="max-bots" min="1" max="20" value="10">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="auto-deploy" class="form-label">Auto-deploy New Bots</label>
+                                    <select class="form-select" id="auto-deploy">
+                                        <option value="yes">Yes</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="log-level" class="form-label">Logging Level</label>
+                                    <select class="form-select" id="log-level">
+                                        <option value="info">Info</option>
+                                        <option value="debug">Debug</option>
+                                        <option value="warning">Warning</option>
+                                        <option value="error">Error</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="backup-frequency" class="form-label">Backup Frequency</label>
+                                    <select class="form-select" id="backup-frequency">
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="never">Never</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-accent">Save Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Logs Section -->
+        <section id="logs" class="mb-5">
+            <h2 class="mb-4"><i class="fas fa-clipboard-list me-2"></i> System Logs</h2>
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Activity</h5>
+                    <div>
+                        <button class="btn btn-sm btn-light me-2" id="refresh-logs">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                        </button>
+                        <button class="btn btn-sm btn-light" id="clear-logs">
+                            <i class="fas fa-trash-alt me-1"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="log-filter-info" checked>
+                            <label class="form-check-label" for="log-filter-info">Info</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="log-filter-success" checked>
+                            <label class="form-check-label" for="log-filter-success">Success</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="log-filter-warning" checked>
+                            <label class="form-check-label" for="log-filter-warning">Warning</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="log-filter-error" checked>
+                            <label class="form-check-label" for="log-filter-error">Error</label>
+                        </div>
+                    </div>
+                    
+                    <div id="logs-container" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Log entries will be dynamically inserted here -->
+                        <div class="log-entry log-info">
+                            <span class="text-muted">[2023-10-15 14:30:22]</span> BotManager V2.5 initialized successfully.
+                        </div>
+                        <div class="log-entry log-success">
+                            <span class="text-muted">[2023-10-15 14:31:05]</span> OpenAI API connection established.
+                        </div>
+                        <div class="log-entry log-success">
+                            <span class="text-muted">[2023-10-15 14:31:10]</span> Anthropic API connection established.
+                        </div>
+                        <div class="log-entry log-info">
+                            <span class="text-muted">[2023-10-15 14:32:15]</span> Ready to create new AI bots.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="mb-0">BotManager V2.5 - Enhanced AI Project Generator with Multi-Bot Support | &copy; 2023 All rights reserved</p>
+        </div>
+    </footer>
+
+    <!-- Create Bot Modal -->
+    <div class="modal fade" id="createBotModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-robot me-2"></i> Create New Bot</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modal-bot-form">
+                        <div class="mb-3">
+                            <label for="modal-bot-name" class="form-label">Bot Name *</label>
+                            <input type="text" class="form-control" id="modal-bot-name" placeholder="Enter a unique name for your bot" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="modal-bot-purpose" class="form-label">Primary Purpose *</label>
+                            <textarea class="form-control" id="modal-bot-purpose" rows="3" placeholder="Describe what you want this bot to do..." required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="modal-ai-model" class="form-label">AI Model</label>
+                                <select class="form-select" id="modal-ai-model">
+                                    <option value="gpt-4">GPT-4 (Most capable)</option>
+                                    <option value="gpt-3.5-turbo" selected>GPT-3.5 Turbo (Fast & cost-effective)</option>
+                                    <option value="claude-3">Claude 3 (Excellent for reasoning)</option>
+                                    <option value="gemini-pro">Gemini Pro (Good for multimodal tasks)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="modal-complexity" class="form-label">Complexity Level</label>
+                                <select class="form-select" id="modal-complexity">
+                                    <option value="simple">Simple (Basic functionality)</option>
+                                    <option value="medium" selected>Medium (Standard features)</option>
+                                    <option value="advanced">Advanced (Full capabilities)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="modal-include-ui" checked>
+                                <label class="form-check-label" for="modal-include-ui">
+                                    Include user interface
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="modal-include-api" checked>
+                                <label class="form-check-label" for="modal-include-api">
+                                    Include API endpoints
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="modal-include-docs">
+                                <label class="form-check-label" for="modal-include-docs">
+                                    Include documentation
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Bot generation may take 1-2 minutes depending on complexity.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-accent" id="generate-bot-btn">
+                        <i class="fas fa-magic me-2"></i> Generate Bot
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bot Details Modal -->
+    <div class="modal fade" id="botDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-robot me-2"></i> Bot Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" class="bot-avatar mb-3" alt="Bot Avatar">
+                        <h4 id="detail-bot-name">Bot Name</h4>
+                        <span class="badge bg-success" id="detail-bot-status">Active</span>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6>Basic Information</h6>
+                            <p><strong>Type:</strong> <span id="detail-bot-type">Chatbot</span></p>
+                            <p><strong>AI Model:</strong> <span id="detail-ai-model">GPT-4</span></p>
+                            <p><strong>Created:</strong> <span id="detail-created-date">2023-10-15</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Deployment</h6>
+                            <p><strong>Platform:</strong> <span id="detail-platform">Web</span></p>
+                            <p><strong>URL:</strong> <span id="detail-bot-url">https://example.com/bot</span></p>
+                            <p><strong>API Endpoint:</strong> <span id="detail-api-endpoint">/api/bot</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6>Description</h6>
+                        <p id="detail-bot-description">This is a description of the bot's functionality and purpose.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6>Capabilities</h6>
+                        <div id="detail-capabilities">
+                            <span class="badge bg-primary me-1">Chat</span>
+                            <span class="badge bg-primary me-1">File Processing</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6>Statistics</h6>
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                <h5 id="detail-requests">0</h5>
+                                <p class="text-muted">Total Requests</p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <h5 id="detail-uptime">0</h5>
+                                <p class="text-muted">Uptime (hours)</p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <h5 id="detail-success-rate">0%</h5>
+                                <p class="text-muted">Success Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-accent" id="start-bot-btn">
+                        <i class="fas fa-play me-2"></i> Start Bot
+                    </button>
+                    <button type="button" class="btn btn-warning" id="stop-bot-btn">
+                        <i class="fas fa-stop me-2"></i> Stop Bot
+                    </button>
+                    <button type="button" class="btn btn-danger" id="delete-bot-btn">
+                        <i class="fas fa-trash-alt me-2"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sample bot data for demonstration
+        const sampleBots = [
+            {
+                id: 1,
+                name: "Customer Support Assistant",
+                type: "Chatbot",
+                description: "Handles customer inquiries and provides support 24/7",
+                model: "GPT-4",
+                status: "active",
+                platform: "Web",
+                created: "2023-10-10",
+                capabilities: ["Chat", "File Processing"],
+                requests: 1245,
+                uptime: 120,
+                successRate: "98%"
+            },
+            {
+                id: 2,
+                name: "Content Generator Pro",
+                type: "Content Generator",
+                description: "Creates blog posts, social media content, and marketing copy",
+                model: "Claude 3",
+                status: "active",
+                platform: "API",
+                created: "2023-10-12",
+                capabilities: ["Content Generation", "Web Search"],
+                requests: 892,
+                uptime: 96,
+                successRate: "95%"
+            },
+            {
+                id: 3,
+                name: "Data Analysis Bot",
+                type: "Data Analysis",
+                description: "Analyzes datasets and generates insights and visualizations",
+                model: "Gemini Pro",
+                status: "inactive",
+                platform: "Web",
+                created: "2023-10-14",
+                capabilities: ["Data Analysis", "Visualization"],
+                requests: 312,
+                uptime: 48,
+                successRate: "92%"
+            }
+        ];
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update dashboard counts
+            updateDashboardCounts();
+            
+            // Load bots
+            loadBots();
+            
+            // Setup form submissions
+            setupFormHandlers();
+            
+            // Setup log filters
+            setupLogFilters();
+            
+            // Setup modal handlers
+            setupModalHandlers();
+            
+            //
